@@ -522,6 +522,7 @@ mod tests {
         let send_completed = Arc::new(AtomicBool::new(false));
         let last_peer_active = Arc::new(AtomicU32::new(0));
 
+        let (tx, _rx) = mpsc::unbounded_channel();
         let mut stat_stream = Stream {
             inner: stream,
             bytes_recvd: bytes_recvd.clone(),
@@ -529,7 +530,8 @@ mod tests {
             recv_completed: recv_completed.clone(),
             send_completed: send_completed.clone(),
             last_peer_active: last_peer_active.clone(),
-            sm: None,
+            id: 0,
+            tx,
         };
 
         let mut data = vec![0u8; 20];
@@ -545,7 +547,6 @@ mod tests {
         assert_eq!(buf.filled().len(), 10);
 
         let received = bytes_recvd.load(Ordering::Relaxed);
-        // This assertion should fail with current implementation (will be 10 instead of 5)
         assert_eq!(received, 5, "Expected 5 bytes received, got {}", received);
     }
 }
